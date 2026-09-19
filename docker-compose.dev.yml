@@ -34,6 +34,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      RUN_MIGRATIONS: "true"
       # Docker Desktop on Windows doesn't reliably forward inotify events for
       # bind-mounted host directories, so --reload's native watcher silently
       # misses file changes. Polling guarantees changes are seen.

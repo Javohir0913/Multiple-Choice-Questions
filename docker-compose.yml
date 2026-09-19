@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file: .env
+    environment:
+      RUN_MIGRATIONS: "true"
     depends_on:
       db:
         condition: service_healthy

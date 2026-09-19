@@ -36,7 +36,7 @@ services:
         condition: service_healthy
     entrypoint: ["./entrypoint.sh"]
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8010:8000"
 
   celery-worker:
     build:
@@ -74,7 +74,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      - "127.0.0.1:5182:80"
 
 volumes:
   pgdata:

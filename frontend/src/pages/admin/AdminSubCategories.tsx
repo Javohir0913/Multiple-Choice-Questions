@@ -21,14 +21,31 @@ const EMPTY_FORM: SubCategoryFormState = {
   available_until: "",
 };
 
+// <input type="datetime-local"> has no timezone info -- its value is the
+// browser's LOCAL wall-clock time. Sending that string to the API as-is
+// gets stored as if it were UTC, silently shifting the schedule by the
+// admin's UTC offset (e.g. 5 hours off in Tashkent). These two helpers
+// convert explicitly at the boundary instead.
+function localInputToISO(value: string): string | null {
+  if (!value) return null;
+  return new Date(value).toISOString();
+}
+
+function isoToLocalInput(value: string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function subCategoryToFormState(s: SubCategory): SubCategoryFormState {
   return {
     name: s.name,
     total_questions_per_test: s.total_questions_per_test,
     time_per_question_seconds: s.time_per_question_seconds,
     allow_back_navigation: s.allow_back_navigation,
-    available_from: s.available_from ? s.available_from.slice(0, 16) : "",
-    available_until: s.available_until ? s.available_until.slice(0, 16) : "",
+    available_from: isoToLocalInput(s.available_from),
+    available_until: isoToLocalInput(s.available_until),
   };
 }
 
@@ -136,8 +153,8 @@ export default function AdminSubCategories() {
         total_questions_per_test: form.total_questions_per_test,
         time_per_question_seconds: form.time_per_question_seconds,
         allow_back_navigation: form.allow_back_navigation,
-        available_from: form.available_from || null,
-        available_until: form.available_until || null,
+        available_from: localInputToISO(form.available_from),
+        available_until: localInputToISO(form.available_until),
       });
       setForm(EMPTY_FORM);
       loadSubs();
@@ -180,8 +197,8 @@ export default function AdminSubCategories() {
         total_questions_per_test: editForm.total_questions_per_test,
         time_per_question_seconds: editForm.time_per_question_seconds,
         allow_back_navigation: editForm.allow_back_navigation,
-        available_from: editForm.available_from || null,
-        available_until: editForm.available_until || null,
+        available_from: localInputToISO(editForm.available_from),
+        available_until: localInputToISO(editForm.available_until),
       });
       setEditingId(null);
       loadSubs();
